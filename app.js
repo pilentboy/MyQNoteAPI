@@ -60,6 +60,24 @@ app.get("/", async (req, res) => {
   }
 });
 
+
+
+
+app.get("/search_users",auth, async (req, res) => {
+	 const { username } = req.query;
+	
+
+  try {
+    const result = await pool.query(`SELECT * FROM users WHERE username LIKE '${username}%'  AND username != $1 `,[req.user.username]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error executing query:", error);
+
+    res.status(500).send("Error retrieving data");
+  }
+});
+
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   
@@ -106,7 +124,7 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", checkApiKey, async (req, res) => {
   const { username, password } = req.body;
-
+	console.log('redddd')
   // checking body
   if (!username || !password) {
     return res
@@ -161,8 +179,8 @@ app.post("/add_note", auth,async (req, res) => {
 	// end checking body
 	try {
 		const result = await pool.query(
-		"INSERT INTO notes (title,content, user_id,time,date,direction) VALUES ($1, $2, $3, $4, $5,$6)",
-		[title, content, req.user.id,time,date,direction]
+		"INSERT INTO notes (title,content, username,time,date,direction) VALUES ($1, $2, $3, $4, $5,$6)",
+		[title, content, req.user.username,time,date,direction]
 		);
 
     res.status(201).json({ message: "یادداشت با موفقیت افزوده شده" });
@@ -174,8 +192,8 @@ app.post("/add_note", auth,async (req, res) => {
 
 app.get("/user_notes",auth, async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM notes WHERE user_id = $1", [
-      req.user.id,
+    const result = await pool.query("SELECT * FROM notes WHERE username = $1", [
+      req.user.username,
     ]);
 
    /* if (result.rows.length === 0) {
@@ -196,13 +214,15 @@ app.delete("/delete_note/:post_id",auth, async (req, res) => {
 	
   try {
     const result = await pool.query(
-      "DELETE FROM notes WHERE user_id = $1 AND id = $2 RETURNING *",
-      [req.user.id, post_id]
+      "DELETE FROM notes WHERE username = $1 AND id = $2 RETURNING *",
+      [req.user.username, post_id]
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "چنین یادداشتی وجود ندارد." });
     }
+	
+	
 
     res.status(201).json({ message: "یادداشت با موفقیت حذف شد." });
   } catch (error) {
@@ -217,8 +237,8 @@ app.put("/edit_note",auth, async (req, res) => {
 	
   try {
     const result = await pool.query(
-  "UPDATE notes SET title = $3 , content = $4 , time = $5 , date = $6 , direction = $7 WHERE id= $1 AND user_id = $2 RETURNING *;",
-      [post_id,req.user.id,title,content,time,date,direction]
+  "UPDATE notes SET title = $3 , content = $4 , time = $5 , date = $6 , direction = $7 WHERE id= $1 AND username = $2 RETURNING *;",
+      [post_id,req.user.username,title,content,time,date,direction]
     );
 	
 	console.log(result.rows)
@@ -236,9 +256,9 @@ app.put("/edit_note",auth, async (req, res) => {
 
 
 app.delete("/delete_notes",auth,async (req,res) => {
-	console.log('xx',req.user)
+	
 	try{
-		const deletedNotes=await pool.query("DELETE FROM notes WHERE user_id = $1",[req.user.id])
+		const deletedNotes=await pool.query("DELETE FROM notes WHERE username = $1",[req.user.username])
 		res.status(201).json({message:"all user notes deleted successfully"})
 	}catch(error){
 		console.log(error)
@@ -246,6 +266,148 @@ app.delete("/delete_notes",auth,async (req,res) => {
 	}
 	
 });
+
+
+app.post("/friend_request", auth,async (req, res) => {
+  const {receiver_username} = req.body;
+	
+
+  // checking body
+	if (!receiver_username) {
+		return res
+		.status(400)
+		json({ error: "اطلاعات ارسال شده صحیح نمی باشند." });
+	}
+	// end checking body
+	try {
+		
+		const result = await pool.query(
+		"INSERT INTO  friend_requests (sender_username,receiver_username,status) VALUES ($1,$2,$3)",
+		[req.user.username,receiver_username,"pending"]
+		);
+
+    res.status(201).json({ message: "درخواست با موفقیت ارسال شد" });
+  } catch (error) {
+    console.error(error);
+	if (error.code === "23505") {
+      return res.status(400).json(
+       { error: "درخواست شما برای این کاربر ارسال شده است" },
+      );
+    }
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+
+app.get("/notification", auth,async (req, res) => {
+	const {receiver_username} = req.body;
+
+	try {	
+		const result = await pool.query(
+		"SELECT * FROM friend_requests WHERE receiver_username = $1 AND status != 'accepted' ",[req.user.username]
+		);
+	console.log(result.rows)
+    res.json({notifications:result.rows, message: "notifications" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+
+app.delete("/delete_friend_request", auth,async (req, res) => {
+	const {friendRequestID} = req.body;
+
+
+	try {	
+		const result = await pool.query(
+		"DELETE FROM friend_requests WHERE ID = $1",[friendRequestID]
+		);
+	
+    res.json({message: `The friend request deleted successfully` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+
+app.get("/pending_requests", auth,async (req, res) => {
+
+	try {	
+		const result = await pool.query(
+		"SELECT * FROM friend_requests WHERE sender_username = $1 AND status = 'pending' ",[req.user.username]
+		);
+		console.log(result)
+    res.json({pendingRequests:result.rows,message: `friend requests` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+
+app.get("/user_friends", auth,async (req, res) => {
+
+	try {	
+		const result = await pool.query(
+		"SELECT   id,  CASE   WHEN receiver_username = $1 THEN sender_username ELSE receiver_username END AS friend_username FROM friend_requests WHERE (sender_username = $1 OR receiver_username = $1) AND status = 'accepted'",[req.user.username]	);
+		console.log(result)
+    res.json({userFriends:result.rows,message: `user's friends` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.put("/accept_friend_request", auth,async (req, res) => {
+	const {friendRequestID} = req.body;
+	try {	
+		const result = await pool.query(
+		"UPDATE friend_requests SET status= 'accepted' WHERE id = $1",[friendRequestID]
+		);
+		console.log(result)
+    res.json({message: "friends list updated" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/share_note", auth,async (req, res) => {
+	const {sharingNoteID,friendUsername} = req.body;
+	try {	
+		const result = await pool.query(
+		"INSERT INTO shared_notes (shared_user,note_id) VALUES ($1,$2)",[friendUsername,sharingNoteID]
+		);
+		console.log(result)
+    res.json({message: "note shared successfully" });
+  } catch (error) {
+	 console.error(error);
+	if (error.code === "23505") {
+      return res.status(400).json(
+       { error: "این یادداشت برای این کاربر ارسال شده است" },
+      );
+    }
+    res.status(500).json({ error: "server error" });
+  
+  }
+});
+
+app.get("/user_shared_notes", auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT notes.* FROM notes JOIN shared_notes ON notes.id = shared_notes.note_id WHERE shared_notes.shared_user = $1",
+      [req.user.username]
+    );
+    console.log(result);
+    res.json({ notes: result.rows, message: "Notes fetched successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 // Start the server÷
 const PORT = 3000;

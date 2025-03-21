@@ -14,12 +14,11 @@ const authenticate = async (req, res, next) => {
   // Extract the token from the Authorization header
   const accessKey = req.headers['authorization']?.split(' ')[1];
   
-console.log(accessKey,'xxxxx')
 
   if (!accessKey) {
     return res.status(401).json({ error: 'Access key is required' });
   }
-	console.log('yyyyyyyyyyyyyyyyyyy')
+	
   try {
     // Verify the JWT token
     const decoded = jwt.verify(accessKey, process.env.JWT_SECRET);
