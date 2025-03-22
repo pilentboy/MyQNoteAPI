@@ -122,7 +122,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", checkApiKey, async (req, res) => {
+app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 	console.log('redddd')
   // checking body
@@ -410,7 +410,7 @@ app.get("/user_shared_notes", auth, async (req, res) => {
 
 
 // Start the server÷
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
