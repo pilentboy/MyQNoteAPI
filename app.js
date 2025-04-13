@@ -2,9 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const router = require("./src/routes");
 const pool = require("./db");
 require("dotenv").config();
 const auth = require("./authenticate");
+const debug = require("debug")("app:main");
+const config = require("config");
 
 // check api key
 const checkApiKey = (req, res, next) => {
@@ -20,9 +23,14 @@ const checkApiKey = (req, res, next) => {
 
 const app = express();
 
+debug("App name: ", config.get("name"));
+
 // configs
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(checkApiKey);
+app.use(express.static("public"));
+app.use("/api", router);
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");

@@ -1,0 +1,8 @@
+{
+  "name": "myqnote api - dev",
+  "db": {
+    "user": "postgres",
+    "database": "myqnote",
+    "password": "1111"
+  }
+}

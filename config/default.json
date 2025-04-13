@@ -1,0 +1,7 @@
+{
+  "name": "myqnote api service",
+  "version": "1.5.2",
+  "db": {
+    "port": 5432
+  }
+}

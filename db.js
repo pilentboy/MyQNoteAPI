@@ -1,26 +1,27 @@
 const { Pool } = require("pg"); // to connect to postgres db
 require("dotenv").config(); // to access env variables
+const config = require("config");
 
 // database connection info
 const pool = new Pool({
-  user: "postgres",
+  user: config.get("db.user"),
   host: "localhost",
-  database: "myqnote",
-  password: "1111",
-  port: 5432,
+  database: config.get("db.database"),
+  password: config.get("db.password"),
+  port: config.get("db.port") || 5432,
 });
 
 // const pool = new Pool({
-//   user: "root",
-//   host: "myqnote",
-//   database: "myqnote",
-//   password: process.env.DATABASE_PASSWORD,
-//   port: 5432,
-//   charset: "utf8"
+//   user: config.get("database.user"),
+//   host: config.get("database.host"),
+//   database: config.get("database.name"),
+//   password: config.get("database.password"),
+//   port: config.get("db.port") || 5432,
+//   charset: "utf8",
 // });
 
 //connect event
-pool.on("connect", () => {
+http: pool.on("connect", () => {
   console.log("Connected to the database");
 });
 
