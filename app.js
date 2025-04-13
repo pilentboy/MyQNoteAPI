@@ -82,48 +82,48 @@ app.get("/search_users", auth, async (req, res) => {
   }
 });
 
-app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+// app.post("/register", async (req, res) => {
+//   const { username, password } = req.body;
 
-  // set body errors
-  const error = { error: [] };
+//   // set body errors
+//   const error = { error: [] };
 
-  // checking body
-  if (!username || !password) {
-    error.error.push({
-      required_values: "نام کاربری یا رمز عبور نمی تواند خالی باشد.",
-    });
-  }
+//   // checking body
+//   if (!username || !password) {
+//     error.error.push({
+//       required_values: "نام کاربری یا رمز عبور نمی تواند خالی باشد.",
+//     });
+//   }
 
-  if (password?.length < 8 || password?.length > 16) {
-    error.error.push({
-      password_length: "رمز عبور باید بین 8 تا 16 کاراکتر باشد.",
-    });
-  }
+//   if (password?.length < 8 || password?.length > 16) {
+//     error.error.push({
+//       password_length: "رمز عبور باید بین 8 تا 16 کاراکتر باشد.",
+//     });
+//   }
 
-  if (error.error.length > 0) {
-    return res.status(400).json(error);
-  }
-  // end checking body
+//   if (error.error.length > 0) {
+//     return res.status(400).json(error);
+//   }
+//   // end checking body
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+//   try {
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2)",
-      [username, hashedPassword]
-    );
+//     const result = await pool.query(
+//       "INSERT INTO users (username, password) VALUES ($1, $2)",
+//       [username, hashedPassword]
+//     );
 
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    if (error.code === "23505") {
-      return res
-        .status(400)
-        .json({ error: "کاربری با این نام کاربری وجود دارد." });
-    }
-    res.status(500).json({ error: "خطای سرور" });
-  }
-});
+//     res.status(201).json({ message: "User registered successfully" });
+//   } catch (error) {
+//     if (error.code === "23505") {
+//       return res
+//         .status(400)
+//         .json({ error: "کاربری با این نام کاربری وجود دارد." });
+//     }
+//     res.status(500).json({ error: "خطای سرور" });
+//   }
+// });
 
 // app.post("/login", async (req, res) => {
 //   const { username, password } = req.body;
