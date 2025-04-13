@@ -1,3 +1,7 @@
+const autoBind = require("auto-bind");
+
 module.exports = class {
-  constructor() {}
+  constructor() {
+    autoBind(this);
+  }
 };
