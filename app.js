@@ -125,51 +125,51 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  console.log("redddd");
-  // checking body
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "نام کاربری و رمز عبور نمی تواند خالی باشد." });
-  }
-  // end checking body
+// app.post("/login", async (req, res) => {
+//   const { username, password } = req.body;
+//   console.log("redddd");
+//   // checking body
+//   if (!username || !password) {
+//     return res
+//       .status(400)
+//       .json({ error: "نام کاربری و رمز عبور نمی تواند خالی باشد." });
+//   }
+//   // end checking body
 
-  try {
-    const result = await pool.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
-    const user = result.rows[0];
+//   try {
+//     const result = await pool.query("SELECT * FROM users WHERE username = $1", [
+//       username,
+//     ]);
+//     const user = result.rows[0];
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res
-        .status(401)
-        .json({ error: "نام کاربری یا رمز عبور اشتباه است." });
-    }
+//     if (!user || !(await bcrypt.compare(password, user.password))) {
+//       return res
+//         .status(401)
+//         .json({ error: "نام کاربری یا رمز عبور اشتباه است." });
+//     }
 
-    const token = jwt.sign(
-      { id: user.id, username: user.username },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "200d",
-      }
-    );
+//     const token = jwt.sign(
+//       { id: user.id, username: user.username },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "200d",
+//       }
+//     );
 
-    // delete user's current access key if there's one
-    //const deletePreToken=await pool.query("DELETE FROM access_key WHERE user_id = $1",[user.id])
+//     // delete user's current access key if there's one
+//     //const deletePreToken=await pool.query("DELETE FROM access_key WHERE user_id = $1",[user.id])
 
-    const setToken = await pool.query(
-      "INSERT INTO access_key (key,user_id) VALUES ($1,$2)",
-      [token, user.id]
-    );
+//     const setToken = await pool.query(
+//       "INSERT INTO access_key (key,user_id) VALUES ($1,$2)",
+//       [token, user.id]
+//     );
 
-    res.status(200).json({ message: "Logged in successfully", token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "خطای سرور" });
-  }
-});
+//     res.status(200).json({ message: "Logged in successfully", token });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "خطای سرور" });
+//   }
+// });
 
 app.post("/add_note", auth, async (req, res) => {
   const { title, content, time, date, direction } = req.body;
