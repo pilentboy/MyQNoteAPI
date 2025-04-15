@@ -23,6 +23,7 @@ module.exports = new (class {
     ];
   }
   loginValidator() {
+    console.log(this);
     return [
       check("username")
         .notEmpty()
