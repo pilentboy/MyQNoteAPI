@@ -8,15 +8,20 @@ module.exports = class {
   validationBody(req, res) {
     const result = validationResult(req);
     if (!result.isEmpty()) {
-      const erros = result.array();
+      const errors = result.array();
       const messages = [];
-      erros.forEach((error) => {
-        messages.push(error.msg);
+      errors.forEach((error) => {
+        messages.push({ field: error.path, msg: error.msg });
       });
-      res.status(400).json({
-        message: "validation error",
-        data: messages,
-      });
+      console.log(messages);
+      this.response(
+        res,
+        "authentication  error",
+        messages.length ? messages : null,
+        null,
+        400
+      );
+
       return false;
     }
     return true;
@@ -29,9 +34,10 @@ module.exports = class {
     next();
   }
 
-  response(res, message, data = {}, code = 200) {
+  response(res, message, errors = {}, data = {}, code = 200) {
     res.status(code).json({
       message: message,
+      error: errors,
       data: data,
     });
   }

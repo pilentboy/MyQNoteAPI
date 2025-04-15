@@ -1,9 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const router = require("./src/routes");
-const pool = require("./db");
+const pool = require("./src/models/db");
 require("dotenv").config();
 const auth = require("./authenticate");
 const debug = require("debug")("app:main");
