@@ -10,9 +10,7 @@ module.exports = new (class {
         .isString()
         .withMessage("نام کاربری باید یک رشته باشد.")
         .isLength({ min: 5, max: 14 })
-        .withMessage("نام کاربری باید بین 5 تا 14 کاراکتر باشد.")
-        .matches(/^[A-Za-z]+$/)
-        .withMessage("نام کاربری باید فقط شامل حروف انگلیسی باشد."),
+        .withMessage("نام کاربری باید بین 5 تا 14 کاراکتر باشد."),
       check("password")
         .isString()
         .withMessage("رمز عبور باید یک رشته باشد.")
@@ -23,7 +21,6 @@ module.exports = new (class {
     ];
   }
   loginValidator() {
-    console.log(this);
     return [
       check("username")
         .notEmpty()

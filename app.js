@@ -80,7 +80,6 @@ app.get("/search_users", auth, async (req, res) => {
   }
 });
 
-
 app.post("/add_note", auth, async (req, res) => {
   const { title, content, time, date, direction } = req.body;
 
@@ -97,45 +96,6 @@ app.post("/add_note", auth, async (req, res) => {
     );
 
     res.status(201).json({ message: "یادداشت با موفقیت افزوده شده" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "خطای سرور" });
-  }
-});
-
-app.get("/user_notes", auth, async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM notes WHERE username = $1", [
-      req.user.username,
-    ]);
-
-    /* if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "یادداشتی برای این کاربر پیدا نشد." });
-    }*/
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "خطای سرور" });
-  }
-});
-
-app.delete("/delete_note/:post_id", auth, async (req, res) => {
-  const { post_id } = req.params;
-
-  try {
-    const result = await pool.query(
-      "DELETE FROM notes WHERE username = $1 AND id = $2 RETURNING *",
-      [req.user.username, post_id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "چنین یادداشتی وجود ندارد." });
-    }
-
-    res.status(201).json({ message: "یادداشت با موفقیت حذف شد." });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "خطای سرور" });

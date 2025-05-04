@@ -1,5 +1,6 @@
 const autoBind = require("auto-bind");
 const { validationResult } = require("express-validator");
+
 module.exports = class {
   constructor() {
     autoBind(this);
@@ -13,12 +14,11 @@ module.exports = class {
       errors.forEach((error) => {
         messages.push({ field: error.path, msg: error.msg });
       });
-      console.log(messages);
       this.response(
         res,
         "authentication  error",
-        messages.length ? messages : null,
         null,
+        messages.length ? messages : null,
         400
       );
 
@@ -34,11 +34,11 @@ module.exports = class {
     next();
   }
 
-  response(res, message, errors = {}, data = {}, code = 200) {
+  response(res, message, data = {}, errors = {}, code = 200) {
     res.status(code).json({
       message: message,
-      error: errors,
       data: data,
+      error: errors,
     });
   }
 };

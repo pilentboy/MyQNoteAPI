@@ -18,11 +18,13 @@ module.exports = new (class extends controler {
       res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
       if (error.code === "23505") {
-        this.response(res, "register error", [
-          { field: "username", msg: "کاربری با این نام در سیستم وجود دارد" },
+        this.response(
+          res,
+          "register error",
           null,
-          400,
-        ]);
+          [{ field: "username", msg: "کاربری با این نام در سیستم وجود دارد" }],
+          400
+        );
         return;
       }
       res.status(500).json({ error: "خطای سرور" });
@@ -43,8 +45,8 @@ module.exports = new (class extends controler {
         this.response(
           res,
           "authentication  error",
-          [{ field: "username", msg: "نام کاربری یا رمز عبور اشتباه است" }],
           null,
+          [{ field: "username", msg: "نام کاربری یا رمز عبور اشتباه است" }],
           401
         );
         return;
@@ -63,10 +65,15 @@ module.exports = new (class extends controler {
         [token, user.id]
       );
 
-      this.response(res, "logged in successfully", null, {
-        token: token,
-        msg: "hii",
-      });
+      this.response(
+        res,
+        "logged in successfully",
+        {
+          token: token,
+          msg: "hii",
+        },
+        null
+      );
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "خطای سرور" });
