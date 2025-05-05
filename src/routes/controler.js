@@ -16,7 +16,7 @@ module.exports = class {
       });
       this.response(
         res,
-        "authentication  error",
+        "An error occured, check the error field",
         null,
         messages.length ? messages : null,
         400
