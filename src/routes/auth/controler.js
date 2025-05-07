@@ -70,7 +70,6 @@ module.exports = new (class extends controler {
         "logged in successfully",
         {
           token: token,
-          msg: "hii",
         },
         null
       );

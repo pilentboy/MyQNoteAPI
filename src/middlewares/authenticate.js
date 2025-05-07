@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const pool = require("./src/models/db");
+const pool = require("../models/db");
 
 /**
  * Verifies a JWT token and returns the decoded payload if valid.
